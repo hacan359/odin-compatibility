@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odin 2 Game Compatibility</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-perfect: #22c55e;
+            --color-great: #84cc16;
+            --color-playable: #eab308;
+            --color-runs: #f97316;
+            --color-poor: #ef4444;
+            --color-broken: #7f1d1d;
+            --color-unknown: #6b7280;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .page-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Controls */
+        .controls-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Progress */
+        .loading-progress {
+            margin-bottom: 1rem;
+        }
+
+        .loading-progress .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .loading-status {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        /* Ranking Badges */
+        .ranking-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .ranking-perfect { background-color: rgba(34, 197, 94, 0.15); color: var(--color-perfect); }
+        .ranking-great { background-color: rgba(132, 204, 22, 0.15); color: var(--color-great); }
+        .ranking-playable { background-color: rgba(234, 179, 8, 0.15); color: var(--color-playable); }
+        .ranking-runs { background-color: rgba(249, 115, 22, 0.15); color: var(--color-runs); }
+        .ranking-poor { background-color: rgba(239, 68, 68, 0.15); color: var(--color-poor); }
+        .ranking-broken { background-color: rgba(127, 29, 29, 0.2); color: var(--color-broken); }
+        .ranking-unknown { background-color: rgba(107, 114, 128, 0.15); color: var(--color-unknown); }
+
+        /* Platform Tabs */
+        .platform-tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-pills .nav-link {
+            color: #495057;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-pills .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-pills .nav-link .badge {
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .nav-pills .nav-link:not(.active) .badge {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-pills .nav-link.loading::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            border: 2px solid #dee2e6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .nav-pills .nav-link.loaded .badge {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: var(--color-perfect);
+        }
+
+        .nav-pills .nav-link.error .badge {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--color-poor);
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        /* Table */
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .table-card-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-card-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .platform-description {
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-bottom: 1px solid #bae6fd;
+            font-style: italic;
+            color: #0369a1;
+            font-size: 0.9rem;
+        }
+
+        .platform-description i {
+            margin-right: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .compatibility-table {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        .compatibility-table thead th {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+            padding: 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .compatibility-table tbody td {
+            padding: 0.625rem 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .compatibility-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .compatibility-table tbody tr.hidden {
+            display: none;
+        }
+
+        .game-name {
+            font-weight: 500;
+            color: #212529;
+            min-width: 250px;
+        }
+
+        .compatibility-table .notes-cell {
+            min-width: 300px;
+            max-width: 450px;
+            white-space: normal;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .emulator-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Tab Panes */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading-container {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+
+        .loading-container .spinner-border {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+
+        .no-data i {
+            font-size: 2.5rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        /* Raw Data Table */
+        .raw-data-table {
+            font-size: 0.85rem;
+        }
+
+        .raw-data-table td {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 2rem;
+            padding: 1.5rem 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-pills {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .nav-pills .nav-link {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .compatibility-table {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Results count */
+        .results-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        /* System Overview */
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .overview-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .overview-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .overview-header .toggle-icon {
+            transition: transform 0.3s;
+        }
+
+        .overview-header[aria-expanded="false"] .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .overview-body {
+            padding: 1rem;
+        }
+
+        .overview-table {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .overview-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .overview-table td {
+            vertical-align: middle;
+        }
+
+        .overview-table .system-name {
+            font-weight: 500;
+        }
+
+        .overview-table .emulator-list {
+            font-size: 0.85rem;
+            color: #6366f1;
+        }
+
+        .overview-table .notes-cell {
+            font-size: 0.8rem;
+            color: #6c757d;
+            max-width: 400px;
+            white-space: normal;
+        }
+
+        .multiplayer-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .multiplayer-yes {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .multiplayer-no {
+            background: rgba(107, 114, 128, 0.15);
+            color: #6b7280;
+        }
+
+        .multiplayer-partial {
+            background: rgba(234, 179, 8, 0.15);
+            color: #ca8a04;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .lang-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .lang-btn:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .lang-btn:last-child {
+            border-radius: 0 6px 6px 0;
+            margin-left: -1px;
+        }
+
+        .page-header {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="container">
+            <!-- Language Switcher -->
+            <div class="lang-switcher">
+                <button class="lang-btn" data-lang="ru">RU</button>
+                <button class="lang-btn active" data-lang="en">EN</button>
+            </div>
+            <h1><i class="bi bi-controller"></i> <span data-i18n="title">Odin 2 Game Compatibility</span></h1>
+            <p class="lead mb-0" data-i18n="subtitle">Game compatibility list for Odin 2 handheld console (Snapdragon 8 Gen 2)</p>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        <!-- Loading Progress -->
+        <div id="loadingProgress" class="controls-card loading-progress">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="loading-status"><i class="bi bi-cloud-download"></i> <span data-i18n="loading">Loading data...</span></span>
+                <span id="progressText">0 / 0</span>
+            </div>
+            <div class="progress">
+                <div id="progressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- System Overview -->
+        <div id="systemOverview" class="overview-card mb-4">
+            <div class="overview-header" data-bs-toggle="collapse" data-bs-target="#overviewContent" aria-expanded="true">
+                <h5><i class="bi bi-cpu"></i> <span data-i18n="systemOverview">System Compatibility</span></h5>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="collapse show" id="overviewContent">
+                <div class="overview-body">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="ms-2 text-muted" data-i18n="loadingOverview">Loading overview...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="controls-card">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control" data-i18n-placeholder="searchPlaceholder" placeholder="Search...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="rankingFilter" class="form-select">
+                        <option value="" data-i18n="allRankings">All rankings</option>
+                        <option value="perfect">Perfect</option>
+                        <option value="great">Great</option>
+                        <option value="playable">Playable</option>
+                        <option value="runs">Runs</option>
+                        <option value="ingame">Ingame</option>
+                        <option value="poor">Poor</option>
+                        <option value="broken">Broken</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span id="resultsCount" class="badge bg-secondary results-badge">0 games</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Tabs -->
+        <div class="platform-tabs">
+            <ul class="nav nav-pills flex-wrap" id="platformTabs" role="tablist">
+                <!-- Табы генерируются JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tabContent">
+            <!-- Контент вкладок генерируется JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center text-muted">
+            <p class="mb-0">
+                <span data-i18n="dataFrom">Data from</span>
+                <a href="https://docs.google.com/spreadsheets/d/1XaPYEyTinKk7F2uTfgSDpgEelhUYPFBWo7knX_3aQgw" target="_blank">
+                    <i class="bi bi-box-arrow-up-right"></i> Odin 2 Compatibility Sheet
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // =====================================================
+        // Конфигурация
+        // =====================================================
+        const SPREADSHEET_ID = '1XaPYEyTinKk7F2uTfgSDpgEelhUYPFBWo7knX_3aQgw';
+        const OVERVIEW_GID = 1542503752; // Лист "System Overview"
+
+        // Только листы с играми (gid указывается для листов, которые не загружаются по имени)
+        const SHEETS = [
+            { name: 'GameCube', icon: 'bi-controller' },
+            { name: 'Wii', icon: 'bi-controller' },
+            { name: 'Switch', icon: 'bi-nintendo-switch' },
+            { name: '3DS', icon: 'bi-phone' },
+            { name: 'PS Vita', gid: 1219890374, icon: 'bi-playstation' },
+            { name: 'Android Games', icon: 'bi-android2' },
+            { name: 'PS2', gid: 465122597, icon: 'bi-playstation' },
+            { name: 'Wii U', icon: 'bi-controller' },
+        ];
+
+        // Данные всех листов
+        const sheetsData = {};
+        let loadedCount = 0;
+        let currentSheet = null;
+        let currentLang = localStorage.getItem('odin_lang') || 'en';
+
+        // =====================================================
+        // Переводы
+        // =====================================================
+        const TRANSLATIONS = {
+            en: {
+                title: 'Odin 2 Game Compatibility',
+                subtitle: 'Game compatibility list for Odin 2 handheld console (Snapdragon 8 Gen 2)',
+                loading: 'Loading data...',
+                loadingOverview: 'Loading overview...',
+                loadingSheet: 'Loading {name}...',
+                systemOverview: 'System Compatibility',
+                searchPlaceholder: 'Search...',
+                allRankings: 'All rankings',
+                dataFrom: 'Data from',
+                games: 'games',
+                noData: 'No data',
+                retry: 'Retry',
+                errorLoading: 'Loading error',
+                errorParsing: 'Parse error',
+                errorRender: 'Render error',
+                couldNotParse: 'Could not parse data'
+            },
+            ru: {
+                title: 'Odin 2 — Совместимость игр',
+                subtitle: 'Таблица совместимости игр с портативной консолью Odin 2 (Snapdragon 8 Gen 2)',
+                loading: 'Загрузка данных...',
+                loadingOverview: 'Загрузка обзора...',
+                loadingSheet: 'Загрузка {name}...',
+                systemOverview: 'Совместимость систем',
+                searchPlaceholder: 'Поиск...',
+                allRankings: 'Все рейтинги',
+                dataFrom: 'Данные из',
+                games: 'игр',
+                noData: 'Нет данных',
+                retry: 'Повторить',
+                errorLoading: 'Ошибка загрузки',
+                errorParsing: 'Ошибка парсинга',
+                errorRender: 'Ошибка рендеринга',
+                couldNotParse: 'Не удалось распарсить данные'
+            }
+        };
+
+        // Получение перевода
+        function t(key, params = {}) {
+            let text = TRANSLATIONS[currentLang][key] || TRANSLATIONS['en'][key] || key;
+            // Подстановка параметров {name} -> value
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+            return text;
+        }
+
+        // Переключение языка
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('odin_lang', lang);
+            document.documentElement.lang = lang;
+
+            // Обновляем кнопки
+            $('.lang-btn').removeClass('active');
+            $(`.lang-btn[data-lang="${lang}"]`).addClass('active');
+
+            // Обновляем все элементы с data-i18n
+            $('[data-i18n]').each(function() {
+                const key = $(this).data('i18n');
+                $(this).text(t(key));
+            });
+
+            // Обновляем placeholder'ы
+            $('[data-i18n-placeholder]').each(function() {
+                const key = $(this).data('i18n-placeholder');
+                $(this).attr('placeholder', t(key));
+            });
+
+            // Обновляем заголовок страницы
+            document.title = t('title');
+
+            // Обновляем счётчик результатов
+            updateResultsCount();
+
+            // Перерисовываем заголовки таблиц с количеством игр
+            SHEETS.forEach(sheet => {
+                const safeId = getSafeId(sheet.name);
+                const $header = $(`#pane-${safeId} .table-card-header .badge`);
+                if ($header.length) {
+                    const count = $header.text().match(/\d+/);
+                    if (count) {
+                        $header.text(`${count[0]} ${t('games')}`);
+                    }
+                }
+            });
+        }
+
+        // Обновление счётчика результатов
+        function updateResultsCount() {
+            const count = $('#resultsCount').text().match(/\d+/) || ['0'];
+            $('#resultsCount').text(`${count[0]} ${t('games')}`);
+        }
+
+        // =====================================================
+        // Инициализация
+        // =====================================================
+        $(document).ready(function() {
+            // Применяем сохранённый язык
+            setLanguage(currentLang);
+
+            createTabs();
+            bindEvents();
+            loadSystemOverview();
+            loadAllSheets();
+        });
+
+        // =====================================================
+        // Создание табов
+        // =====================================================
+        function createTabs() {
+            const $tabs = $('#platformTabs');
+            const $content = $('#tabContent');
+
+            SHEETS.forEach((sheet, index) => {
+                const safeId = getSafeId(sheet.name);
+                const isFirst = index === 0;
+
+                // Создаём таб
+                const $tab = $(`
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link ${isFirst ? 'active' : ''} loading"
+                                id="tab-btn-${safeId}"
+                                data-sheet="${sheet.name}"
+                                type="button" role="tab">
+                            <i class="bi ${sheet.icon}"></i> ${sheet.name}
+                            <span class="badge" id="count-${safeId}">...</span>
+                        </button>
+                    </li>
+                `);
+                $tabs.append($tab);
+
+                // Создаём контент вкладки
+                const $pane = $(`
+                    <div class="tab-pane ${isFirst ? 'active' : ''}" id="pane-${safeId}" data-sheet="${sheet.name}">
+                        <div class="table-card">
+                            <div class="loading-container">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 mb-0">${t('loadingSheet', {name: sheet.name})}</p>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                $content.append($pane);
+
+                if (isFirst) {
+                    currentSheet = sheet.name;
+                }
+            });
+        }
+
+        // =====================================================
+        // Загрузка обзора систем
+        // =====================================================
+        function loadSystemOverview() {
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${OVERVIEW_GID}`;
+
+            $.ajax({
+                url: url,
+                dataType: 'text',
+                timeout: 10000,
+                success: function(response) {
+                    try {
+                        const jsonStr = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+                        if (jsonStr && jsonStr[1]) {
+                            const data = JSON.parse(jsonStr[1]);
+                            renderSystemOverview(data.table);
+                        } else {
+                            showOverviewError(t('couldNotParse'));
+                        }
+                    } catch (e) {
+                        showOverviewError(t('errorParsing') + ': ' + e.message);
+                    }
+                },
+                error: function() {
+                    showOverviewError(t('errorLoading'));
+                }
+            });
+        }
+
+        function renderSystemOverview(tableData) {
+            const $body = $('#overviewContent .overview-body');
+
+            if (!tableData || !tableData.rows || tableData.rows.length === 0) {
+                showOverviewError(t('noData'));
+                return;
+            }
+
+            // Получаем заголовки (пропускаем первый пустой столбец)
+            const headers = tableData.cols.slice(1).map(col => col.label || '');
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-hover overview-table">
+                        <thead>
+                            <tr>
+                                ${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            tableData.rows.forEach(row => {
+                const cells = row.c || [];
+                // Пропускаем первый пустой столбец
+                const systemCell = cells[1];
+                const system = systemCell ? (systemCell.v ?? systemCell.f ?? '') : '';
+
+                if (!system || system === '-') return;
+
+                const ranking = String(cells[2]?.v || '').trim();
+                const emulators = String(cells[3]?.v || cells[3]?.f || '').trim();
+                const multiplayer = String(cells[4]?.v || '').trim();
+                const notes = String(cells[5]?.v || '').trim();
+
+                const rankingClass = getRankingClass(ranking.toLowerCase());
+                const multiplayerBadge = getMultiplayerBadge(multiplayer);
+
+                html += `
+                    <tr>
+                        <td class="system-name">${escapeHtml(system)}</td>
+                        <td><span class="ranking-badge ${rankingClass}">${escapeHtml(ranking) || '—'}</span></td>
+                        <td class="emulator-list">${escapeHtml(emulators) || '—'}</td>
+                        <td>${multiplayerBadge}</td>
+                        <td class="notes-cell" title="${escapeHtml(notes)}">${escapeHtml(notes) || '—'}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            $body.html(html);
+        }
+
+        function getMultiplayerBadge(value) {
+            const v = value.toLowerCase().trim();
+            if (!v || v === '-' || v === '—') {
+                return '<span class="multiplayer-badge multiplayer-no">—</span>';
+            }
+            if (v === 'yes' || v === 'да' || v.includes('yes')) {
+                return '<span class="multiplayer-badge multiplayer-yes">Yes</span>';
+            }
+            if (v === 'no' || v === 'нет' || v.includes('no') || v.includes('n/a')) {
+                return '<span class="multiplayer-badge multiplayer-no">No</span>';
+            }
+            // Частичная поддержка или с примечаниями
+            return `<span class="multiplayer-badge multiplayer-partial">${escapeHtml(value)}</span>`;
+        }
+
+        function showOverviewError(message) {
+            $('#overviewContent .overview-body').html(`
+                <div class="text-center py-3 text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> ${escapeHtml(message)}
+                </div>
+            `);
+        }
+
+        // =====================================================
+        // Привязка событий
+        // =====================================================
+        function bindEvents() {
+            // Переключение языка
+            $(document).on('click', '.lang-btn', function() {
+                const lang = $(this).data('lang');
+                setLanguage(lang);
+            });
+
+            // Клик по табу
+            $(document).on('click', '.nav-link[data-sheet]', function() {
+                const sheetName = $(this).data('sheet');
+                switchTab(sheetName);
+            });
+
+            // Поиск
+            let searchTimeout;
+            $('#searchInput').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(filterCurrentSheet, 150);
+            });
+
+            // Фильтр по рейтингу
+            $('#rankingFilter').on('change', filterCurrentSheet);
+
+            // Обновление aria-expanded для иконки сворачивания
+            $('#overviewContent').on('show.bs.collapse', function() {
+                $('.overview-header').attr('aria-expanded', 'true');
+            }).on('hide.bs.collapse', function() {
+                $('.overview-header').attr('aria-expanded', 'false');
+            });
+        }
+
+        // =====================================================
+        // Переключение вкладки
+        // =====================================================
+        function switchTab(sheetName) {
+            currentSheet = sheetName;
+            const safeId = getSafeId(sheetName);
+
+            // Обновляем активный таб
+            $('.nav-link').removeClass('active');
+            $(`#tab-btn-${safeId}`).addClass('active');
+
+            // Обновляем активную панель
+            $('.tab-pane').removeClass('active');
+            $(`#pane-${safeId}`).addClass('active');
+
+            // Применяем фильтры
+            filterCurrentSheet();
+        }
+
+        // =====================================================
+        // Загрузка всех листов
+        // =====================================================
+        function loadAllSheets() {
+            const total = SHEETS.length;
+            updateProgress(0, total);
+
+            SHEETS.forEach((sheet, index) => {
+                // Небольшая задержка между запросами чтобы не перегружать Google
+                setTimeout(() => {
+                    loadSheet(sheet);
+                }, index * 200);
+            });
+        }
+
+        // =====================================================
+        // Загрузка одного листа
+        // =====================================================
+        function loadSheet(sheetConfig) {
+            const sheetName = sheetConfig.name;
+            const safeId = getSafeId(sheetName);
+
+            // Если указан GID, загружаем по нему, иначе по имени
+            let url;
+            if (sheetConfig.gid) {
+                url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${sheetConfig.gid}`;
+            } else {
+                url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+            }
+
+            $.ajax({
+                url: url,
+                dataType: 'text',
+                timeout: 10000,
+                success: function(response) {
+                    try {
+                        const jsonStr = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+                        if (jsonStr && jsonStr[1]) {
+                            const data = JSON.parse(jsonStr[1]);
+                            sheetsData[sheetName] = data.table;
+                            try {
+                                renderSheet(sheetName, data.table);
+                                markTabLoaded(safeId, true);
+                            } catch (renderErr) {
+                                console.error(`Render error for ${sheetName}:`, renderErr);
+                                markTabLoaded(safeId, false);
+                                showSheetError(sheetName, t('errorRender') + ': ' + renderErr.message);
+                            }
+                        } else {
+                            markTabLoaded(safeId, false);
+                            showSheetError(sheetName, t('couldNotParse'));
+                        }
+                    } catch (e) {
+                        console.error(`Parse error for ${sheetName}:`, e);
+                        markTabLoaded(safeId, false);
+                        showSheetError(sheetName, t('errorParsing') + ': ' + e.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    markTabLoaded(safeId, false);
+                    showSheetError(sheetName, t('errorLoading') + ': ' + status);
+                },
+                complete: function() {
+                    loadedCount++;
+                    updateProgress(loadedCount, SHEETS.length);
+                }
+            });
+        }
+
+        // =====================================================
+        // Обновление прогресса загрузки
+        // =====================================================
+        function updateProgress(loaded, total) {
+            const percent = Math.round((loaded / total) * 100);
+            $('#progressBar').css('width', percent + '%');
+            $('#progressText').text(`${loaded} / ${total}`);
+
+            if (loaded >= total) {
+                setTimeout(() => {
+                    $('#loadingProgress').slideUp(300);
+                }, 500);
+            }
+        }
+
+        // =====================================================
+        // Отметка таба как загруженного
+        // =====================================================
+        function markTabLoaded(safeId, success) {
+            const $tab = $(`#tab-btn-${safeId}`);
+            $tab.removeClass('loading');
+            $tab.addClass(success ? 'loaded' : 'error');
+        }
+
+        // =====================================================
+        // Рендер листа
+        // =====================================================
+        function renderSheet(sheetName, tableData) {
+            const safeId = getSafeId(sheetName);
+            const $pane = $(`#pane-${safeId}`);
+
+            if (!tableData || !tableData.rows || tableData.rows.length === 0) {
+                $pane.html(`
+                    <div class="table-card">
+                        <div class="no-data">
+                            <i class="bi bi-inbox"></i>
+                            <p>${t('noData')}</p>
+                        </div>
+                    </div>
+                `);
+                $(`#count-${safeId}`).text('0');
+                return;
+            }
+
+            // Получаем заголовки
+            const headers = tableData.cols.map(col => col.label || col.id || '');
+
+            // Определяем какие столбцы скрыть (пустые заголовки или "X")
+            const hiddenColumns = new Set();
+            headers.forEach((h, index) => {
+                const cleaned = (h || '').trim().toLowerCase();
+                if (!cleaned || cleaned === 'x' || cleaned === '-' || cleaned === '—') {
+                    hiddenColumns.add(index);
+                }
+            });
+
+            // Получаем описание из первой строки (если есть)
+            let platformDescription = '';
+            if (tableData.rows.length > 0) {
+                const firstRowCells = tableData.rows[0].c || [];
+                const descParts = [];
+                firstRowCells.forEach(cell => {
+                    if (cell) {
+                        const val = String(cell.v ?? cell.f ?? '').trim();
+                        if (val && val !== '-' && val !== '—') {
+                            descParts.push(val);
+                        }
+                    }
+                });
+                // Если первая строка похожа на описание (содержит длинный текст или кавычки)
+                const firstVal = descParts[0] || '';
+                if (firstVal.includes('"') || firstVal.includes('Want') || firstVal.length > 50) {
+                    platformDescription = descParts.join(' ').substring(0, 200);
+                }
+            }
+
+            // Подсчёт строк с данными (где name не пустое), пропуская первую строку если это описание
+            let rowCount = 0;
+            const startRow = platformDescription ? 1 : 0;
+            for (let i = startRow; i < tableData.rows.length; i++) {
+                const cells = tableData.rows[i].c || [];
+                const firstCell = cells[0];
+                const firstCellVal = firstCell ? (firstCell.v ?? firstCell.f ?? '') : '';
+                const name = String(firstCellVal).trim();
+                if (name && name !== '-' && name !== '—') rowCount++;
+            }
+
+            // Обновляем счётчик
+            $(`#count-${safeId}`).text(rowCount);
+
+            // Генерируем таблицу
+            let html = `
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h5><i class="bi ${getSheetIcon(sheetName)}"></i> ${sheetName}</h5>
+                        <span class="badge bg-secondary">${rowCount} ${t('games')}</span>
+                    </div>
+                    ${platformDescription ? `<div class="platform-description"><i class="bi bi-quote"></i> ${escapeHtml(platformDescription)}</div>` : ''}
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="table compatibility-table">
+                            <thead>
+                                <tr>
+                                    ${headers.map((h, i) => hiddenColumns.has(i) ? '' : `<th>${escapeHtml(cleanHeader(h))}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            // Пропускаем первую строку если это описание
+            for (let rowIndex = startRow; rowIndex < tableData.rows.length; rowIndex++) {
+              try {
+                const row = tableData.rows[rowIndex];
+                const cells = row.c || [];
+
+                // Пропускаем строки где name пустое
+                const firstCell = cells[0];
+                const firstCellVal = firstCell ? (firstCell.v ?? firstCell.f ?? '') : '';
+                const name = String(firstCellVal).trim();
+                if (!name || name === '-' || name === '—') continue;
+
+                // Данные для фильтрации
+                const secondCellObj = cells[1];
+                const secondCellVal = secondCellObj ? (secondCellObj.v ?? secondCellObj.f ?? '') : '';
+                const ranking = String(secondCellVal).toLowerCase().trim();
+
+                html += `<tr class="data-row"
+                            data-search="${escapeHtml(name.toLowerCase())}"
+                            data-ranking="${ranking}">`;
+
+                cells.forEach((cell, cellIndex) => {
+                    // Пропускаем скрытые столбцы
+                    if (hiddenColumns.has(cellIndex)) return;
+
+                    const value = cell?.v || '';
+                    const formatted = cell?.f || value;
+                    const header = (headers[cellIndex] || '').toLowerCase();
+
+                    // Первая колонка - название игры
+                    if (cellIndex === 0) {
+                        html += `<td class="game-name">${escapeHtml(formatted)}</td>`;
+                    }
+                    // Вторая колонка - рейтинг
+                    else if (cellIndex === 1 && value) {
+                        const rankingClass = getRankingClass(value.toString().toLowerCase());
+                        html += `<td><span class="ranking-badge ${rankingClass}">${escapeHtml(formatted)}</span></td>`;
+                    }
+                    // Колонка Notes
+                    else if (header.includes('note')) {
+                        html += `<td class="notes-cell" title="${escapeHtml(formatted)}">${escapeHtml(formatted) || '—'}</td>`;
+                    }
+                    // Остальные колонки
+                    else {
+                        html += `<td title="${escapeHtml(formatted)}">${escapeHtml(formatted) || '—'}</td>`;
+                    }
+                });
+
+                html += '</tr>';
+              } catch (rowErr) {
+                // Пропускаем строку с ошибкой
+              }
+            }
+
+            html += '</tbody></table></div></div>';
+            $pane.html(html);
+
+            // Если это текущая вкладка, применяем фильтры
+            if (currentSheet === sheetName) {
+                filterCurrentSheet();
+            }
+        }
+
+        // =====================================================
+        // Показ ошибки для листа
+        // =====================================================
+        function showSheetError(sheetName, message) {
+            const safeId = getSafeId(sheetName);
+            const $pane = $(`#pane-${safeId}`);
+
+            $pane.html(`
+                <div class="table-card">
+                    <div class="no-data">
+                        <i class="bi bi-exclamation-triangle text-danger"></i>
+                        <p class="mb-2">${escapeHtml(sheetName)}: ${escapeHtml(message)}</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="retryLoadSheet('${sheetName}')">
+                            <i class="bi bi-arrow-clockwise"></i> ${t('retry')}
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            $(`#count-${safeId}`).text('!');
+        }
+
+        // =====================================================
+        // Повторная загрузка листа
+        // =====================================================
+        function retryLoadSheet(sheetName) {
+            const sheet = SHEETS.find(s => s.name === sheetName);
+            if (sheet) {
+                const safeId = getSafeId(sheetName);
+                $(`#tab-btn-${safeId}`).removeClass('error loaded').addClass('loading');
+                $(`#count-${safeId}`).text('...');
+                $(`#pane-${safeId}`).html(`
+                    <div class="table-card">
+                        <div class="loading-container">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 mb-0">${t('loadingSheet', {name: sheetName})}</p>
+                        </div>
+                    </div>
+                `);
+                loadSheet(sheet);
+            }
+        }
+
+        // =====================================================
+        // Фильтрация текущего листа и обновление счётчиков
+        // =====================================================
+        function filterCurrentSheet() {
+            const search = $('#searchInput').val().toLowerCase().trim();
+            const ranking = $('#rankingFilter').val().toLowerCase();
+
+            // Фильтруем текущую вкладку и показываем/скрываем строки
+            const safeId = getSafeId(currentSheet);
+            const $pane = $(`#pane-${safeId}`);
+            const $rows = $pane.find('.data-row');
+
+            let visibleCount = 0;
+
+            $rows.each(function() {
+                const $row = $(this);
+                const rowSearch = $row.data('search') || '';
+                const rowRanking = $row.data('ranking') || '';
+
+                const matchSearch = !search || rowSearch.includes(search);
+                const matchRanking = !ranking || rowRanking.includes(ranking);
+
+                if (matchSearch && matchRanking) {
+                    $row.removeClass('hidden');
+                    visibleCount++;
+                } else {
+                    $row.addClass('hidden');
+                }
+            });
+
+            $('#resultsCount').text(visibleCount + ' ' + t('games'));
+
+            // Обновляем счётчики во всех табах
+            updateAllTabCounts(search, ranking);
+        }
+
+        // Обновление счётчиков во всех табах
+        function updateAllTabCounts(search, ranking) {
+            SHEETS.forEach(sheet => {
+                const safeId = getSafeId(sheet.name);
+                const $pane = $(`#pane-${safeId}`);
+                const $rows = $pane.find('.data-row');
+
+                let count = 0;
+                $rows.each(function() {
+                    const $row = $(this);
+                    const rowSearch = $row.data('search') || '';
+                    const rowRanking = $row.data('ranking') || '';
+
+                    const matchSearch = !search || rowSearch.includes(search);
+                    const matchRanking = !ranking || rowRanking.includes(ranking);
+
+                    if (matchSearch && matchRanking) {
+                        count++;
+                    }
+                });
+
+                $(`#count-${safeId}`).text(count);
+            });
+        }
+
+        // =====================================================
+        // Вспомогательные функции
+        // =====================================================
+
+        function getSafeId(name) {
+            return name.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+
+        function getSheetIcon(sheetName) {
+            const sheet = SHEETS.find(s => s.name === sheetName);
+            return sheet ? sheet.icon : 'bi-table';
+        }
+
+        function getRankingClass(ranking) {
+            const r = ranking.toLowerCase().trim();
+            if (r.includes('perfect')) return 'ranking-perfect';
+            if (r.includes('great') || r.includes('good')) return 'ranking-great';
+            if (r.includes('playable')) return 'ranking-playable';
+            if (r.includes('runs') || r.includes('ingame') || r.includes('in-game') || r.includes('boots') || r.includes('intro')) return 'ranking-runs';
+            if (r.includes('poor') || r.includes('menu') || r.includes('loadable')) return 'ranking-poor';
+            if (r.includes('broken') || r.includes('bad') || r.includes('nothing') || r.includes('unplayable') || r.includes('crash')) return 'ranking-broken';
+            return 'ranking-unknown';
+        }
+
+        // Очистка заголовков от лишнего текста
+        function cleanHeader(header) {
+            if (!header) return '—';
+            let h = header.trim();
+
+            // Убираем "Note: ..." в начале, оставляем последнее слово
+            if (h.toLowerCase().startsWith('note:')) {
+                // Ищем последнее значимое слово (Ranking, Status и т.д.)
+                const words = h.split(/\s+/);
+                const lastWord = words[words.length - 1];
+                if (lastWord && lastWord.length > 2) {
+                    h = lastWord;
+                }
+            }
+
+            // Убираем название платформы из "Sony Playstation 2 Name" -> "Game Name"
+            h = h.replace(/^(Sony\s+)?Playstation\s*\d*\s*/i, '');
+            h = h.replace(/^(Nintendo\s+)?Switch\s*/i, '');
+            h = h.replace(/^GameCube\s*/i, '');
+            h = h.replace(/^Wii\s*(U)?\s*/i, '');
+            h = h.replace(/^(PS\s*)?(Vita|2|3)\s*/i, '');
+            h = h.replace(/^3DS\s*/i, '');
+            h = h.replace(/^Android\s*(Games)?\s*/i, '');
+
+            // Если осталось пусто или слишком короткое
+            if (!h || h.length < 2) {
+                h = 'Name';
+            }
+
+            // Приводим к нормальному виду (первая буква заглавная)
+            h = h.charAt(0).toUpperCase() + h.slice(1);
+
+            // Ограничиваем длину
+            if (h.length > 30) {
+                h = h.substring(0, 27) + '...';
+            }
+
+            return h;
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
